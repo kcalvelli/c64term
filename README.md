@@ -93,4 +93,5 @@ MIT
 
 ## Credits
 
-Created for [axiOS](https://github.com/kcalvelli/axios) - A modular NixOS distribution
+- Created for [axiOS](https://github.com/kcalvelli/axios) - A modular NixOS distribution
+- [C64 Pro Mono Font](https://style64.org/c64-truetype) by Style64
