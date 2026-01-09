@@ -7,6 +7,7 @@
   procps,
   gnugrep,
   gawk,
+  ncurses,
 }:
 
 stdenv.mkDerivation rec {
@@ -23,6 +24,7 @@ stdenv.mkDerivation rec {
     procps
     gnugrep
     gawk
+    ncurses
   ];
 
   # Script to generate C64-style boot message with real system info
@@ -55,6 +57,12 @@ stdenv.mkDerivation rec {
     # Show C64 boot message
     c64-boot-message
   
+    # Override clear to show boot message
+    function clear
+        command clear
+        c64-boot-message
+    end
+
     # Custom C64 prompt
     function fish_prompt
         echo
