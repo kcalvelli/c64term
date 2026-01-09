@@ -71,8 +71,8 @@ stdenv.mkDerivation rec {
   
     # Set blinking block cursor
     set -g fish_cursor_default block blink
-    set -g fish_cursor_insert line blink
-    set -g fish_cursor_replace_one underscore blink
+    set -g fish_cursor_insert block blink
+    set -g fish_cursor_replace_one block blink
     set -g fish_cursor_visual block
   
     # C64 color theme
