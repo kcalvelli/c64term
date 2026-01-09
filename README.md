@@ -9,7 +9,6 @@ Authentic Commodore 64 terminal experience for modern Linux systems.
 - **C64 Boot Screen**: Shows actual system RAM with "READY." prompt
 - **Blinking Cursor**: Classic block cursor █
 - **Fish Shell**: Pre-configured with C64 color theme
-- **Starship Prompt**: Minimal "READY." prompt matching C64 aesthetic
 - **Ghostty Terminal**: Modern terminal with C64 configuration
 
 ## Installation
@@ -59,7 +58,6 @@ nix run github:kcalvelli/c64term
 
 - **Ghostty** terminal emulator
 - **Fish** shell
-- **Starship** prompt
 
 ## Usage
 

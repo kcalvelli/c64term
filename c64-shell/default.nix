@@ -4,7 +4,6 @@
   makeWrapper,
   ghostty,
   fish,
-  starship,
   procps,
   gnugrep,
   gawk,
@@ -21,7 +20,6 @@ stdenv.mkDerivation rec {
   buildInputs = [
     ghostty
     fish
-    starship
     procps
     gnugrep
     gawk
@@ -59,8 +57,11 @@ stdenv.mkDerivation rec {
     # Show C64 boot message
     c64-boot-message
   
-    # Initialize Starship prompt
-    ${starship}/bin/starship init fish | source
+    # Custom C64 prompt
+    function fish_prompt
+        echo "READY."
+        echo
+    end
   
     # Force Fish to control cursor shape in Ghostty
     if status is-interactive
@@ -94,17 +95,6 @@ stdenv.mkDerivation rec {
     set -g fish_pager_color_prefix cyan
     set -g fish_pager_color_completion white
     set -g fish_pager_color_description brblack
-  '';
-
-  # Starship config for C64 shell (minimal, just READY. prompt)
-  starshipConfig = ''
-    # C64-style minimal prompt
-    format = "READY.\n$character"
-  
-    [character]
-    success_symbol = "[█](bold white)"
-    error_symbol = "[█](bold red)"
-    vimcmd_symbol = "[█](bold white)"
   '';
 
   # Ghostty configuration for C64 shell (authentic C64 colors)
@@ -153,7 +143,6 @@ stdenv.mkDerivation rec {
 
     # Install configs
     echo "$fishConfig" > $out/share/c64-shell/config.fish
-    echo "$starshipConfig" > $out/share/c64-shell/starship.toml
     echo "$ghosttyConfig" > $out/share/c64-shell/ghostty.conf
 
     # Install boot script
@@ -172,7 +161,7 @@ stdenv.mkDerivation rec {
       --config-file="@GHOSTTY_CONFIG@" \
       --class=com.kc.c64shell \
       -e @FISH@ \
-      --init-command="source @FISH_CONFIG@; and set -x STARSHIP_CONFIG @STARSHIP_CONFIG@"
+      --init-command="source @FISH_CONFIG@"
     LAUNCHER_EOF
 
     chmod +x $out/bin/c64-shell
@@ -183,8 +172,7 @@ stdenv.mkDerivation rec {
       --replace-fail "@GHOSTTY_CONFIG@" "$out/share/c64-shell/ghostty.conf" \
       --replace-fail "@GHOSTTY@" "${ghostty}/bin/ghostty" \
       --replace-fail "@FISH@" "${fish}/bin/fish" \
-      --replace-fail "@FISH_CONFIG@" "$out/share/c64-shell/config.fish" \
-      --replace-fail "@STARSHIP_CONFIG@" "$out/share/c64-shell/starship.toml"
+      --replace-fail "@FISH_CONFIG@" "$out/share/c64-shell/config.fish"
   '';
 
   meta = with lib; {
