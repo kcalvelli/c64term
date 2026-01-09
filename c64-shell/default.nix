@@ -51,55 +51,60 @@ stdenv.mkDerivation rec {
   '';
 
   # Custom Fish config for C64 shell
-fishConfig = ''
-  # C64 Shell Configuration
-  # Disable default greeting
-  set -g fish_greeting
-
-  # Show C64 boot message
-  c64-boot-message
-
-  # Initialize Starship prompt
-  ${starship}/bin/starship init fish | source
-
-  # Set blinking block cursor
-  set -g fish_cursor_default block blink
-  set -g fish_cursor_insert line blink
-  set -g fish_cursor_replace_one underscore blink
-  set -g fish_cursor_visual block
-
-  # C64 color theme
-  set -g fish_color_normal white
-  set -g fish_color_command white --bold
-  set -g fish_color_quote green
-  set -g fish_color_redirection cyan
-  set -g fish_color_end white
-  set -g fish_color_error red --bold
-  set -g fish_color_param white
-  set -g fish_color_comment brblack
-  set -g fish_color_match cyan
-  set -g fish_color_selection white --background=brblack
-  set -g fish_color_search_match --background=brblack
-  set -g fish_color_operator cyan
-  set -g fish_color_escape magenta
-  set -g fish_color_autosuggestion brblack
-  set -g fish_pager_color_progress white
-  set -g fish_pager_color_prefix cyan
-  set -g fish_pager_color_completion white
-  set -g fish_pager_color_description brblack
-'';
+  fishConfig = ''
+    # C64 Shell Configuration
+    # Disable default greeting
+    set -g fish_greeting
+  
+    # Show C64 boot message
+    c64-boot-message
+  
+    # Initialize Starship prompt
+    ${starship}/bin/starship init fish | source
+  
+    # Force Fish to control cursor shape in Ghostty
+    if status is-interactive
+      if string match -q -- '*ghostty*' $TERM
+        set -g fish_vi_force_cursor 1
+      end
+    end
+  
+    # Set blinking block cursor
+    set -g fish_cursor_default block blink
+    set -g fish_cursor_insert line blink
+    set -g fish_cursor_replace_one underscore blink
+    set -g fish_cursor_visual block
+  
+    # C64 color theme
+    set -g fish_color_normal white
+    set -g fish_color_command white --bold
+    set -g fish_color_quote green
+    set -g fish_color_redirection cyan
+    set -g fish_color_end white
+    set -g fish_color_error red --bold
+    set -g fish_color_param white
+    set -g fish_color_comment brblack
+    set -g fish_color_match cyan
+    set -g fish_color_selection white --background=brblack
+    set -g fish_color_search_match --background=brblack
+    set -g fish_color_operator cyan
+    set -g fish_color_escape magenta
+    set -g fish_color_autosuggestion brblack
+    set -g fish_pager_color_progress white
+    set -g fish_pager_color_prefix cyan
+    set -g fish_pager_color_completion white
+    set -g fish_pager_color_description brblack
+  '';
 
   # Starship config for C64 shell (minimal, just READY. prompt)
   starshipConfig = ''
     # C64-style minimal prompt
-    # Disable all default modules to remove hostname/username
-    format = """READY.
-    $character"""
-
+    format = "READY.\n$character"
+  
     [character]
-    success_symbol = "█"
-    error_symbol = "█"
-    vimcmd_symbol = "█"
+    success_symbol = "[█](bold white)"
+    error_symbol = "[█](bold red)"
+    vimcmd_symbol = "[█](bold white)"
   '';
 
   # Ghostty configuration for C64 shell (authentic C64 colors)
@@ -132,8 +137,10 @@ fishConfig = ''
     window-padding-x = 10
     window-padding-y = 10
 
+    shell-integration-features = no-cursor
     cursor-style = block
-    cursor-style-blink = true
+    cursor-style-blink = true  # or false if you want non-blinking   
+    
   '';
 
   installPhase = ''
