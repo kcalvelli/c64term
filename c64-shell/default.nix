@@ -171,7 +171,7 @@ stdenv.mkDerivation rec {
     cp @GHOSTTY_CONFIG@ "$C64_XDG_HOME/ghostty/config"
 
     # Launch Ghostty with isolated config, custom app-id, and Fish shell
-    exec env XDG_CONFIG_HOME="$C64_XDG_HOME" @GHOSTTY@ \
+    exec env PATH="@C64_BIN@:$PATH" XDG_CONFIG_HOME="$C64_XDG_HOME" @GHOSTTY@ \
       --class=com.kc.c64shell \
       -e @FISH@ \
       --init-command="source @FISH_CONFIG@; and set -x STARSHIP_CONFIG @STARSHIP_CONFIG@"
@@ -181,6 +181,7 @@ stdenv.mkDerivation rec {
 
     # Substitute paths in launcher
     substituteInPlace $out/bin/c64-shell \
+      --replace-fail "@C64_BIN@" "$out/bin" \
       --replace-fail "@GHOSTTY_CONFIG@" "$out/share/c64-shell/ghostty.conf" \
       --replace-fail "@GHOSTTY@" "${ghostty}/bin/ghostty" \
       --replace-fail "@FISH@" "${fish}/bin/fish" \
