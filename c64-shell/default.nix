@@ -133,12 +133,27 @@ stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out/bin
     mkdir -p $out/share/c64-shell
+    mkdir -p $out/share/applications
     mkdir -p $out/share/icons/hicolor/512x512/apps
     mkdir -p $out/share/fonts/truetype
 
     # Install icon and font
-    cp ${src}/resources/c64term.png $out/share/icons/hicolor/512x512/apps/c64term.png
+    cp ${src}/resources/c64term.png $out/share/icons/hicolor/512x512/apps/io.github.kcalvelli.c64term.png
     cp ${src}/resources/c64_pro_mono.ttf $out/share/fonts/truetype/c64_pro_mono.ttf
+
+    # Install desktop file
+    cat > $out/share/applications/io.github.kcalvelli.c64term.desktop <<EOF
+    [Desktop Entry]
+    Type=Application
+    Name=C64 Term
+    GenericName=Commodore 64 Terminal
+    Comment=Authentic Commodore 64 terminal experience
+    Exec=$out/bin/c64-shell
+    Icon=io.github.kcalvelli.c64term
+    Terminal=false
+    Categories=System;TerminalEmulator;
+    StartupWMClass=io.github.kcalvelli.c64term
+    EOF
 
     # Install configs
     echo "$fishConfig" > $out/share/c64-shell/config.fish
@@ -158,7 +173,7 @@ stdenv.mkDerivation rec {
     # Launch Ghostty with isolated config, custom app-id, and Fish shell
     exec env PATH="@C64_BIN@:$PATH" XDG_CONFIG_HOME="$C64_XDG_HOME" XDG_DATA_DIRS="$XDG_DATA_DIRS:@C64_SHARE@" @GHOSTTY@ \
       --config-file="@GHOSTTY_CONFIG@" \
-      --class=com.kc.c64shell \
+      --class=io.github.kcalvelli.c64term \
       -e @FISH@ \
       --init-command="source @FISH_CONFIG@"
     LAUNCHER_EOF

@@ -41,16 +41,6 @@ nix run github:kcalvelli/c64term
   home.packages = [
     inputs.c64term.packages.${pkgs.stdenv.hostPlatform.system}.c64-shell
   ];
-
-  # Create desktop launcher
-  xdg.desktopEntries.c64-shell = {
-    name = "C64 Shell";
-    genericName = "Commodore 64 Terminal";
-    exec = "${inputs.c64term.packages.${pkgs.stdenv.hostPlatform.system}.c64-shell}/bin/c64-shell";
-    icon = "com.kc.c64shell";
-    terminal = false;
-    categories = [ "System" "TerminalEmulator" "Development" ];
-  };
 }
 ```
 
