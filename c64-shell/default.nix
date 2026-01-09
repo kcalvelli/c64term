@@ -7,7 +7,6 @@
   procps,
   gnugrep,
   gawk,
-  ncurses,
 }:
 
 stdenv.mkDerivation rec {
@@ -24,7 +23,6 @@ stdenv.mkDerivation rec {
     procps
     gnugrep
     gawk
-    ncurses
   ];
 
   # Script to generate C64-style boot message with real system info
@@ -39,26 +37,11 @@ stdenv.mkDerivation rec {
     TOTAL_RAM=$(${procps}/bin/free -h | ${gnugrep}/bin/grep "Mem:" | ${gawk}/bin/awk '{print $2}')
     AVAILABLE_BYTES=$(${procps}/bin/free -b | ${gnugrep}/bin/grep "Mem:" | ${gawk}/bin/awk '{print $7}')
 
-    # Lines to print
-    LINE1="**** AXIOS COMMODORE 64 SYSTEM V2 ****"
-    LINE2=" $TOTAL_RAM RAM SYSTEM  $AVAILABLE_BYTES BASIC BYTES FREE"
-
-    # Get terminal width
-    COLS=$(${ncurses}/bin/tput cols 2>/dev/null || echo 80)
-
-    center_print() {
-        local text="$1"
-        local width=$2
-        local padding=$(( (width - ''${#text}) / 2 ))
-        if [ $padding -lt 0 ]; then padding=0; fi
-        printf "%*s%s\n" $padding "" "$text"
-    }
-
     # Print boot message
     echo -e ""
-    center_print "$LINE1" "$COLS"
+    echo -e " **** AXIOS COMMODORE 64 SYSTEM V2 ****"
     echo -e ""
-    center_print "$LINE2" "$COLS"
+    echo -e " $TOTAL_RAM RAM SYSTEM  $AVAILABLE_BYTES BASIC BYTES FREE"
     echo -e ""
   '';
 
