@@ -70,7 +70,6 @@ stdenv.mkDerivation rec {
 
     # Custom C64 prompt
     function fish_prompt
-        echo "READY."
         echo
     end
   
