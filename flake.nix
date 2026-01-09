@@ -22,12 +22,12 @@
           pkgs = pkgsFor system;
         in
         {
-          default = self.packages.${system}.c64-shell;
-          c64-shell = pkgs.callPackage ./c64-shell { };
+          default = self.packages.${system}.c64term;
+          c64term = pkgs.callPackage ./c64-shell { };
         }
       );
 
       # For use in other flakes
-      overlays.default = final: prev: { c64-shell = self.packages.${final.system}.c64-shell; };
+      overlays.default = final: prev: { c64term = self.packages.${final.system}.c64term; };
     };
 }

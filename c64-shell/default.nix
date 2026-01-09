@@ -10,7 +10,7 @@
 }:
 
 stdenv.mkDerivation rec {
-  pname = "c64-shell";
+  pname = "c64term";
   version = "1.0.0";
 
   src = ./.;
@@ -132,7 +132,7 @@ stdenv.mkDerivation rec {
 
   installPhase = ''
     mkdir -p $out/bin
-    mkdir -p $out/share/c64-shell
+    mkdir -p $out/share/c64term
     mkdir -p $out/share/applications
     mkdir -p $out/share/icons/hicolor/512x512/apps
     mkdir -p $out/share/fonts/truetype
@@ -148,7 +148,7 @@ stdenv.mkDerivation rec {
     Name=C64 Term
     GenericName=Commodore 64 Terminal
     Comment=Authentic Commodore 64 terminal experience
-    Exec=$out/bin/c64-shell
+    Exec=$out/bin/c64term
     Icon=io.github.kcalvelli.c64term
     Terminal=false
     Categories=System;TerminalEmulator;
@@ -156,15 +156,15 @@ stdenv.mkDerivation rec {
     EOF
 
     # Install configs
-    echo "$fishConfig" > $out/share/c64-shell/config.fish
-    echo "$ghosttyConfig" > $out/share/c64-shell/ghostty.conf
+    echo "$fishConfig" > $out/share/c64term/config.fish
+    echo "$ghosttyConfig" > $out/share/c64term/ghostty.conf
 
     # Install boot script
     echo "$bootScript" > $out/bin/c64-boot-message
     chmod +x $out/bin/c64-boot-message
 
     # Create launcher script
-    cat > $out/bin/c64-shell <<'LAUNCHER_EOF'
+    cat > $out/bin/c64term <<'LAUNCHER_EOF'
     #!/usr/bin/env bash
     # Create temporary XDG config home for isolated C64 Ghostty instance
     C64_XDG_HOME="''${XDG_RUNTIME_DIR:-/tmp}/c64-xdg-config"
@@ -178,16 +178,16 @@ stdenv.mkDerivation rec {
       --init-command="source @FISH_CONFIG@"
     LAUNCHER_EOF
 
-    chmod +x $out/bin/c64-shell
+    chmod +x $out/bin/c64term
 
     # Substitute paths in launcher
-    substituteInPlace $out/bin/c64-shell \
+    substituteInPlace $out/bin/c64term \
       --replace-fail "@C64_BIN@" "$out/bin" \
       --replace-fail "@C64_SHARE@" "$out/share" \
-      --replace-fail "@GHOSTTY_CONFIG@" "$out/share/c64-shell/ghostty.conf" \
+      --replace-fail "@GHOSTTY_CONFIG@" "$out/share/c64term/ghostty.conf" \
       --replace-fail "@GHOSTTY@" "${ghostty}/bin/ghostty" \
       --replace-fail "@FISH@" "${fish}/bin/fish" \
-      --replace-fail "@FISH_CONFIG@" "$out/share/c64-shell/config.fish"
+      --replace-fail "@FISH_CONFIG@" "$out/share/c64term/config.fish"
   '';
 
   meta = with lib; {
@@ -195,6 +195,6 @@ stdenv.mkDerivation rec {
     homepage = "https://github.com/kcalvelli/axios";
     license = licenses.mit;
     platforms = platforms.linux;
-    mainProgram = "c64-shell";
+    mainProgram = "c64term";
   };
 }

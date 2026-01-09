@@ -29,7 +29,7 @@ nix run github:kcalvelli/c64term
 
   # In your system configuration
   environment.systemPackages = [
-    inputs.c64term.packages.${pkgs.stdenv.hostPlatform.system}.c64-shell
+    inputs.c64term.packages.${pkgs.stdenv.hostPlatform.system}.c64term
   ];
 }
 ```
@@ -39,7 +39,7 @@ nix run github:kcalvelli/c64term
 ```nix
 {
   home.packages = [
-    inputs.c64term.packages.${pkgs.stdenv.hostPlatform.system}.c64-shell
+    inputs.c64term.packages.${pkgs.stdenv.hostPlatform.system}.c64term
   ];
 }
 ```
@@ -54,7 +54,7 @@ nix run github:kcalvelli/c64term
 Launch C64 Shell:
 
 ```bash
-c64-shell
+c64term
 ```
 
 The shell will display an authentic C64 boot screen with your actual system RAM information, followed by the classic "READY." prompt.
