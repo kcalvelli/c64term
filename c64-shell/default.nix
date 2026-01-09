@@ -139,7 +139,7 @@ stdenv.mkDerivation rec {
 
     shell-integration-features = no-cursor
     cursor-style = block
-    cursor-style-blink = true  # or false if you want non-blinking   
+    cursor-style-blink = true
     
   '';
 
