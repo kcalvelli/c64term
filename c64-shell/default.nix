@@ -87,7 +87,7 @@ stdenv.mkDerivation rec {
     set -g fish_cursor_visual block
   
     # C64 color theme
-    set -g fish_color_normal white
+    set -g fish_color_normal normal
     set -g fish_color_command white --bold
     set -g fish_color_quote green
     set -g fish_color_redirection cyan
