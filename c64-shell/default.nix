@@ -63,8 +63,14 @@ stdenv.mkDerivation rec {
         c64-boot-message
     end
 
+    # Bind Ctrl+L to our custom clear
+    function fish_user_key_bindings
+        bind \cl clear
+    end
+
     # Custom C64 prompt
     function fish_prompt
+        echo "READY."
         echo
     end
   
