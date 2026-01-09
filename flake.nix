@@ -23,7 +23,7 @@
         in
         {
           default = self.packages.${system}.c64term;
-          c64term = pkgs.callPackage ./c64-shell { };
+          c64term = pkgs.callPackage ./c64term { };
         }
       );
 
