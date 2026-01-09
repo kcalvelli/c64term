@@ -51,37 +51,43 @@ stdenv.mkDerivation rec {
   '';
 
   # Custom Fish config for C64 shell
-  fishConfig = ''
-    # C64 Shell Configuration
-    # Disable default greeting (we handle it ourselves)
-    set -g fish_greeting
+fishConfig = ''
+  # C64 Shell Configuration
+  # Disable default greeting
+  set -g fish_greeting
 
-    # Show C64 boot message
-    c64-boot-message
+  # Show C64 boot message
+  c64-boot-message
 
-    # Initialize Starship prompt
-    ${starship}/bin/starship init fish | source
+  # Initialize Starship prompt
+  ${starship}/bin/starship init fish | source
 
-    # C64 color theme (approximating classic blue screen)
-    set -g fish_color_normal white
-    set -g fish_color_command white --bold
-    set -g fish_color_quote green
-    set -g fish_color_redirection cyan
-    set -g fish_color_end white
-    set -g fish_color_error red --bold
-    set -g fish_color_param white
-    set -g fish_color_comment brblack
-    set -g fish_color_match cyan
-    set -g fish_color_selection white --background=brblack
-    set -g fish_color_search_match --background=brblack
-    set -g fish_color_operator cyan
-    set -g fish_color_escape magenta
-    set -g fish_color_autosuggestion brblack
-    set -g fish_pager_color_progress white
-    set -g fish_pager_color_prefix cyan
-    set -g fish_pager_color_completion white
-    set -g fish_pager_color_description brblack
-  '';
+  # Set blinking block cursor
+  set -g fish_cursor_default block blink
+  set -g fish_cursor_insert line blink
+  set -g fish_cursor_replace_one underscore blink
+  set -g fish_cursor_visual block
+
+  # C64 color theme
+  set -g fish_color_normal white
+  set -g fish_color_command white --bold
+  set -g fish_color_quote green
+  set -g fish_color_redirection cyan
+  set -g fish_color_end white
+  set -g fish_color_error red --bold
+  set -g fish_color_param white
+  set -g fish_color_comment brblack
+  set -g fish_color_match cyan
+  set -g fish_color_selection white --background=brblack
+  set -g fish_color_search_match --background=brblack
+  set -g fish_color_operator cyan
+  set -g fish_color_escape magenta
+  set -g fish_color_autosuggestion brblack
+  set -g fish_pager_color_progress white
+  set -g fish_pager_color_prefix cyan
+  set -g fish_pager_color_completion white
+  set -g fish_pager_color_description brblack
+'';
 
   # Starship config for C64 shell (minimal, just READY. prompt)
   starshipConfig = ''
