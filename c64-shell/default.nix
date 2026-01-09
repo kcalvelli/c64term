@@ -165,13 +165,11 @@ stdenv.mkDerivation rec {
     #!/usr/bin/env bash
     # Create temporary XDG config home for isolated C64 Ghostty instance
     C64_XDG_HOME="''${XDG_RUNTIME_DIR:-/tmp}/c64-xdg-config"
-    mkdir -p "$C64_XDG_HOME/ghostty"
-
-    # Copy C64 config to proper Ghostty config location
-    cp @GHOSTTY_CONFIG@ "$C64_XDG_HOME/ghostty/config"
+    mkdir -p "$C64_XDG_HOME"
 
     # Launch Ghostty with isolated config, custom app-id, and Fish shell
     exec env PATH="@C64_BIN@:$PATH" XDG_CONFIG_HOME="$C64_XDG_HOME" @GHOSTTY@ \
+      --config-file="@GHOSTTY_CONFIG@" \
       --class=com.kc.c64shell \
       -e @FISH@ \
       --init-command="source @FISH_CONFIG@; and set -x STARSHIP_CONFIG @STARSHIP_CONFIG@"
