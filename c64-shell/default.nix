@@ -43,6 +43,7 @@ stdenv.mkDerivation rec {
     echo -e ""
     echo -e " $TOTAL_RAM RAM SYSTEM  $AVAILABLE_BYTES BASIC BYTES FREE"
     echo -e ""
+    echo -e "READY."
   '';
 
   # Custom Fish config for C64 shell
@@ -53,12 +54,6 @@ stdenv.mkDerivation rec {
   
     # Show C64 boot message
     c64-boot-message
-  
-    # Custom C64 prompt
-    function fish_prompt
-        echo "READY."
-        echo
-    end
   
     # Force Fish to control cursor shape in Ghostty
     if status is-interactive
