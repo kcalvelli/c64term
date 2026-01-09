@@ -55,6 +55,11 @@ stdenv.mkDerivation rec {
     # Show C64 boot message
     c64-boot-message
   
+    # Custom C64 prompt
+    function fish_prompt
+        echo
+    end
+  
     # Force Fish to control cursor shape in Ghostty
     if status is-interactive
       if string match -q -- '*ghostty*' $TERM
