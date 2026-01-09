@@ -121,8 +121,8 @@ stdenv.mkDerivation rec {
     palette = 14=#7869c4
     palette = 15=#9f9f9f
 
-    font-family = Monospace
-    font-size = 12
+    font-family = "C64 Pro Mono"
+    font-size = 10
 
     window-padding-x = 10
     window-padding-y = 10
@@ -137,9 +137,11 @@ stdenv.mkDerivation rec {
     mkdir -p $out/bin
     mkdir -p $out/share/c64-shell
     mkdir -p $out/share/icons/hicolor/512x512/apps
+    mkdir -p $out/share/fonts/truetype
 
-    # Install icon
+    # Install icon and font
     cp ${src}/resources/c64term.png $out/share/icons/hicolor/512x512/apps/c64term.png
+    cp ${src}/resources/c64_pro_mono.ttf $out/share/fonts/truetype/c64_pro_mono.ttf
 
     # Install configs
     echo "$fishConfig" > $out/share/c64-shell/config.fish
@@ -157,7 +159,7 @@ stdenv.mkDerivation rec {
     mkdir -p "$C64_XDG_HOME"
 
     # Launch Ghostty with isolated config, custom app-id, and Fish shell
-    exec env PATH="@C64_BIN@:$PATH" XDG_CONFIG_HOME="$C64_XDG_HOME" @GHOSTTY@ \
+    exec env PATH="@C64_BIN@:$PATH" XDG_CONFIG_HOME="$C64_XDG_HOME" XDG_DATA_DIRS="$XDG_DATA_DIRS:@C64_SHARE@" @GHOSTTY@ \
       --config-file="@GHOSTTY_CONFIG@" \
       --class=com.kc.c64shell \
       -e @FISH@ \
@@ -169,6 +171,7 @@ stdenv.mkDerivation rec {
     # Substitute paths in launcher
     substituteInPlace $out/bin/c64-shell \
       --replace-fail "@C64_BIN@" "$out/bin" \
+      --replace-fail "@C64_SHARE@" "$out/share" \
       --replace-fail "@GHOSTTY_CONFIG@" "$out/share/c64-shell/ghostty.conf" \
       --replace-fail "@GHOSTTY@" "${ghostty}/bin/ghostty" \
       --replace-fail "@FISH@" "${fish}/bin/fish" \
