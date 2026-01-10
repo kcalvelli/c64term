@@ -8,7 +8,13 @@
   gnugrep,
   gawk,
   ncurses,
+  callPackage,
 }:
+
+let
+  # Build our own cbmbasic with C23 compatibility fix
+  cbmbasic = callPackage ./cbmbasic.nix { };
+in
 
 stdenv.mkDerivation rec {
   pname = "c64term";
@@ -25,6 +31,7 @@ stdenv.mkDerivation rec {
     gnugrep
     gawk
     ncurses
+    cbmbasic
   ];
 
   # Script to generate C64-style boot message with real system info
@@ -37,15 +44,28 @@ stdenv.mkDerivation rec {
 
     # Get system info (free is in procps, not coreutils)
     TOTAL_RAM=$(${procps}/bin/free -h | ${gnugrep}/bin/grep "Mem:" | ${gawk}/bin/awk '{print $2}')
-    AVAILABLE_BYTES=$(${procps}/bin/free -b | ${gnugrep}/bin/grep "Mem:" | ${gawk}/bin/awk '{print $7}')
+    # Get available bytes in K (like original C64 style)
+    AVAILABLE_K=$(${procps}/bin/free -k | ${gnugrep}/bin/grep "Mem:" | ${gawk}/bin/awk '{print $7}')
 
-    # Print boot message
-    echo -e ""
-    echo -e " **** AXIOS COMMODORE 64 SYSTEM V2 ****"
-    echo -e ""
-    echo -e " $TOTAL_RAM RAM SYSTEM  $AVAILABLE_BYTES BASIC BYTES FREE"
-    echo -e ""
-    echo -e "READY."
+    # Helper to print centered text based on terminal width
+    print_centered() {
+        local text="$1"
+        local cols=$(tput cols)
+        local len=''${#text}
+        local pad=$(( (cols - len) / 2 ))
+        if [ $pad -lt 0 ]; then pad=0; fi
+        printf "%*s%s\n" $pad "" "$text"
+    }
+
+    # Print boot message centered
+    echo ""
+    print_centered "**** AXIOS COMMODORE 64 SYSTEM V2 ****"
+    echo ""
+    print_centered "$TOTAL_RAM RAM SYSTEM  $AVAILABLE_K BASIC BYTES FREE"
+    echo ""
+    print_centered "TYPE 'BASIC' TO ENTER BASIC MODE"
+    echo ""
+    exit 0
   '';
 
   # Custom Fish config for C64 shell
@@ -53,39 +73,61 @@ stdenv.mkDerivation rec {
     # C64 Shell Configuration
     # Disable default greeting
     set -g fish_greeting
-  
+
     # Show C64 boot message
     c64-boot-message
-  
+
     # Override clear to show boot message
     function clear
         command clear
         c64-boot-message
+        return 0
     end
 
     # Bind Ctrl+L to our custom clear
     function fish_user_key_bindings
-        bind \cl clear
+        bind \cl 'commandline "clear"; commandline -f execute'
+    end
+
+    # Wrapper for cbmbasic that shows boot message after exit
+    function basic
+        # Run the real cbmbasic
+        command cbmbasic $argv
+        # Show boot message again when returning to shell
+        command clear
+        c64-boot-message
+        return 0
+    end
+
+    # Handle unknown commands with C64 error
+    function fish_command_not_found
+        return 127
     end
 
     # Custom C64 prompt
     function fish_prompt
+        # If previous command failed (and wasn't handled by not_found), show error
+        if test $status -ne 0
+            echo "?SYNTAX  ERROR"
+        end
+        echo
+        echo "READY."
         echo
     end
-  
+
     # Force Fish to control cursor shape in Ghostty
     if status is-interactive
       if string match -q -- '*ghostty*' $TERM
         set -g fish_vi_force_cursor 1
       end
     end
-  
+
     # Set blinking block cursor
     set -g fish_cursor_default block blink
     set -g fish_cursor_insert block blink
     set -g fish_cursor_replace_one block blink
     set -g fish_cursor_visual block
-  
+
     # C64 color theme
     set -g fish_color_normal normal
     set -g fish_color_command white --bold
@@ -105,9 +147,7 @@ stdenv.mkDerivation rec {
     set -g fish_pager_color_prefix cyan
     set -g fish_pager_color_completion white
     set -g fish_pager_color_description brblack
-  '';
-
-  # Ghostty configuration for C64 shell (authentic C64 colors)
+  '';  # Ghostty configuration for C64 shell (authentic C64 colors)
   ghosttyConfig = ''
     title = C64 Shell
 
@@ -132,10 +172,14 @@ stdenv.mkDerivation rec {
     palette = 15=#9f9f9f
 
     font-family = "C64 Pro Mono"
-    font-size = 10
+    font-size = 12
 
-    window-padding-x = 10
-    window-padding-y = 10
+    window-padding-x = 20
+    window-padding-y = 20
+
+    # Sized to fit 80 columns at 8pt font
+    window-width = 800
+    window-height = 600
 
     shell-integration-features = no-cursor
     cursor-style = block
@@ -176,6 +220,14 @@ stdenv.mkDerivation rec {
     echo "$bootScript" > $out/bin/c64-boot-message
     chmod +x $out/bin/c64-boot-message
 
+    # Create wrapper to silence stderr (C64 style)
+    cat > $out/bin/c64-fish <<'WRAPPER_EOF'
+    #!/bin/sh
+    # Redirect stderr to /dev/null to suppress non-C64 errors
+    exec @FISH@ --init-command="source @FISH_CONFIG@" "$@" 2>/dev/null
+    WRAPPER_EOF
+    chmod +x $out/bin/c64-fish
+
     # Create launcher script
     cat > $out/bin/c64term <<'LAUNCHER_EOF'
     #!/usr/bin/env bash
@@ -184,23 +236,26 @@ stdenv.mkDerivation rec {
     mkdir -p "$C64_XDG_HOME"
 
     # Launch Ghostty with isolated config, custom app-id, and Fish shell
-    exec env PATH="@C64_BIN@:$PATH" XDG_CONFIG_HOME="$C64_XDG_HOME" XDG_DATA_DIRS="$XDG_DATA_DIRS:@C64_SHARE@" @GHOSTTY@ \
+    # cbmbasic is available in the PATH
+    exec env PATH="@C64_BIN@:@CBMBASIC_BIN@:$PATH" XDG_CONFIG_HOME="$C64_XDG_HOME" XDG_DATA_DIRS="$XDG_DATA_DIRS:@C64_SHARE@" @GHOSTTY@ \
       --config-file="@GHOSTTY_CONFIG@" \
       --class=io.github.kcalvelli.c64term \
-      -e @FISH@ \
-      --init-command="source @FISH_CONFIG@"
+      -e "@C64_BIN@/c64-fish"
     LAUNCHER_EOF
 
     chmod +x $out/bin/c64term
 
-    # Substitute paths in launcher
+    # Substitute paths in launcher and wrapper
+    substituteInPlace $out/bin/c64-fish \
+      --replace-fail "@FISH@" "${fish}/bin/fish" \
+      --replace-fail "@FISH_CONFIG@" "$out/share/c64term/config.fish"
+
     substituteInPlace $out/bin/c64term \
       --replace-fail "@C64_BIN@" "$out/bin" \
       --replace-fail "@C64_SHARE@" "$out/share" \
+      --replace-fail "@CBMBASIC_BIN@" "${cbmbasic}/bin" \
       --replace-fail "@GHOSTTY_CONFIG@" "$out/share/c64term/ghostty.conf" \
-      --replace-fail "@GHOSTTY@" "${ghostty}/bin/ghostty" \
-      --replace-fail "@FISH@" "${fish}/bin/fish" \
-      --replace-fail "@FISH_CONFIG@" "$out/share/c64term/config.fish"
+      --replace-fail "@GHOSTTY@" "${ghostty}/bin/ghostty"
   '';
 
   meta = with lib; {

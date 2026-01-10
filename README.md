@@ -59,6 +59,13 @@ c64term
 
 The shell will display an authentic C64 boot screen with your actual system RAM information, followed by the classic "READY." prompt.
 
+To enter the BASIC interpreter, type:
+```bash
+basic
+```
+
+To exit BASIC, use `SYSTEM` or press `Ctrl+C`.
+
 ## Configuration
 
 The C64 shell runs in an isolated configuration directory to avoid affecting your main Ghostty setup. Configuration is stored in `$XDG_RUNTIME_DIR/c64-xdg-config/`.

@@ -29,5 +29,27 @@
 
       # For use in other flakes
       overlays.default = final: prev: { c64term = self.packages.${final.system}.c64term; };
+
+      # Development shell with cbmbasic
+      devShells = forAllSystems (
+        system:
+        let
+          pkgs = pkgsFor system;
+          cbmbasic = pkgs.callPackage ./c64term/cbmbasic.nix { };
+        in
+        {
+          default = pkgs.mkShell {
+            buildInputs = [
+              cbmbasic
+              pkgs.fish
+            ];
+
+            shellHook = ''
+              echo "C64 Development Shell"
+              echo "cbmbasic is available - type 'cbmbasic' to enter BASIC mode"
+            '';
+          };
+        }
+      );
     };
 }
